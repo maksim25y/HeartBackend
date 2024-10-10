@@ -1,0 +1,3 @@
+jwt:
+  secret-key: 55d731c263e1ddb8e50eec214ccf010207b82cfb415c76976751a12f1f04c2ca
+  ttl: 30
