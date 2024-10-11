@@ -28,6 +28,7 @@ class SecurityConfig (private val jwtAuthFilter: JwtAuthenticationFilter,
             .authorizeHttpRequests(Customizer { matcherRegistry ->
                 matcherRegistry
                     .requestMatchers("/api/v1/auth/**").permitAll() // запрос не требует аутентификации
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .anyRequest().authenticated()
             }) // запрос требует аутентификацию
             .sessionManagement { sessionManagementConfigurer: SessionManagementConfigurer<HttpSecurity?> ->
