@@ -17,13 +17,11 @@ import java.time.Duration
 
 @Configuration
 @RequiredArgsConstructor
-class SecurityToolsConfig {
-    private val appUserRepository: ApplicationUserRepository? = null
-
+class SecurityToolsConfig (val appUserRepository: ApplicationUserRepository) {
     @Bean
     fun userDetailsService(): UserDetailsService {
         return UserDetailsService { username: String? ->
-            appUserRepository!!.findByLogin(username)
+            appUserRepository.findByLogin(username)
                 .orElseThrow { UsernameNotFoundException("User not found") }
         }
     }
