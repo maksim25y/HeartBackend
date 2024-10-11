@@ -1,4 +1,4 @@
-package ru.mudan.secutiry
+package ru.mudan.service.secutiry
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts

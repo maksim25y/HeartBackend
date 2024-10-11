@@ -1,14 +1,14 @@
-package ru.mudan.controller
+package ru.mudan.controller.security
 
 import lombok.RequiredArgsConstructor
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import ru.mudan.controller.payload.AuthenticationRequest
-import ru.mudan.controller.payload.AuthenticationResponse
-import ru.mudan.controller.payload.RegisterRequest
-import ru.mudan.secutiry.AuthenticationService
+import ru.mudan.controller.security.payload.AuthenticationRequest
+import ru.mudan.controller.security.payload.AuthenticationResponse
+import ru.mudan.controller.security.payload.RegisterRequest
+import ru.mudan.service.secutiry.AuthenticationService
 
 @RestController
 @RequestMapping("/api/v1/auth")
