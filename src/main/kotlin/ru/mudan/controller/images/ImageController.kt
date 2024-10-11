@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.ErrorResponse
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpClientErrorException
@@ -35,7 +36,7 @@ class ImageController(val imageServiceImpl: ImageService) {
         ), ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")]
     )
     @PostMapping(path = ["/image/add"])
-    fun addFile(@RequestBody imageRequest: @Valid ImageRequest): ResponseEntity<IdResponse> {
+    fun addFile(@Valid @RequestBody imageRequest: ImageRequest): ResponseEntity<IdResponse> {
         return ResponseEntity.ok(imageServiceImpl.add(imageRequest))
     }
 
