@@ -1,0 +1,89 @@
+package ru.mudan.controller.images
+
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Positive
+import lombok.RequiredArgsConstructor
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatusCode
+import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.ErrorResponse
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.HttpClientErrorException
+import ru.mudan.controller.images.payload.IdResponse
+import ru.mudan.controller.images.payload.ImageRequest
+import ru.mudan.controller.images.payload.ImageResponse
+import ru.mudan.controller.images.payload.ListImagesResponse
+import ru.mudan.service.images.ImageService
+import java.util.*
+
+@SecurityRequirement(name = "JWT")
+@RequiredArgsConstructor
+@RestController
+class ImageController(val imageServiceImpl: ImageService) {
+    @Operation(summary = "Добавить изображение")
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Изображение добавлено",
+            content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = IdResponse::class)))
+        ), ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")]
+    )
+    @PostMapping(path = ["/image/add"])
+    fun addFile(@Valid @RequestBody imageRequest: ImageRequest): ResponseEntity<IdResponse> {
+        return ResponseEntity.ok(imageServiceImpl.add(imageRequest))
+    }
+
+    @Operation(summary = "Получить изображение")
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Изображение успешно получено",
+            content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ImageResponse::class)))
+        ), ApiResponse(
+            responseCode = "400",
+            description = "Некорректные параметры запроса"
+        ), ApiResponse(
+            responseCode = "404",
+            description = "Изображение не найдено",
+            content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class)))
+        )]
+    )
+    @GetMapping(path = ["/image/{id}"])
+    fun getFile(@PathVariable id: @Positive Long): ResponseEntity<ImageResponse> {
+        val image = imageServiceImpl.get(id)
+        if (Objects.isNull(image)) {
+            throw HttpClientErrorException.NotFound.create(
+                HttpStatusCode.valueOf(404),
+                "Изображение не найдено", HttpHeaders.EMPTY, byteArrayOf(), null
+            )
+        }
+        return ResponseEntity.ok(image)
+    }
+
+    @get:GetMapping(path = ["/images"])
+    @get:ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Изображения успешно получены",
+            content = arrayOf(
+                Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ListImagesResponse::class)
+                )
+            )
+        ), ApiResponse(
+            responseCode = "400",
+            description = "Некорректные параметры запроса"
+        )]
+    )
+    @get:Operation(summary = "Получить все изображения")
+    val images: ResponseEntity<ListImagesResponse>
+        get() = ResponseEntity.ok(imageServiceImpl.list)
+}
