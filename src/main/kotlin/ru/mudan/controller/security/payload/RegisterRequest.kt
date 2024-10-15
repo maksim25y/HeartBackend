@@ -6,17 +6,14 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
 data class RegisterRequest(
-    @field:JsonProperty("login")
-    @field:NotBlank(message = "{register.request.login.is_blank}")
-    @field:Size(min = 3, max = 15, message = "{register.request.login.invalid_size}")
-    @field:Schema(name = "login", example = "test_login")
+    @field:Schema(description = "Никнейм пользователя", example = "ivan_ivanov")
+    @field:NotBlank(message = "{login.is_blank}")
     val login: String,
-    @field:Schema(name = "display_name", example = "test_name")
+    @field:Schema(name = "display_name", example = "Иванов Иван Иванович")
     @field:NotBlank(message = "{register.request.display_name.is_blank}")
     @field:JsonProperty("display_name") @param:JsonProperty("display_name") val displayName: String,
-    @field:JsonProperty("password")
-    @field:NotBlank(message = "{register.request.password.is_blank}")
-    @field:Size(min = 8, max = 20, message = "{register.request.password.invalid_size}")
-    @field:Schema(name = "password", example = "test_password")
+    @field:Schema(description = "Пароль пользователя", example = "securePassword123")
+    @field:Size(min = 8, max = 32, message = "{password.invalid_size}")
+    @field:NotBlank(message = "{request.password.is_blank}")
     val password: String
 )
