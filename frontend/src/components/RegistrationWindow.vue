@@ -19,11 +19,16 @@ export default {
             this.$router.push('/login');
         },
 
+        goMenu() {
+            this.$router.push('/');
+        },
+
         submitData() {
             console.log(this.formData)
             axios.post("http://localhost:8080/api/v1/auth/register", this.formData)
             .then(response => {
                 document.cookie = `authToken=${response.data.token}; path=/; SameSite=Strict;`
+                this.goMenu()
             })
             .catch(error => {
                 alert("Ошибка ввода данных");
@@ -113,6 +118,7 @@ export default {
 
 .title {
     font-size: 30px;
+    color: black;
 }
 
 .name-of-info-and-input {
@@ -146,6 +152,7 @@ export default {
     display: flex;
     flex-direction: row;
     gap: 3px;
+    color: black;
 }
 
 .checkbox {

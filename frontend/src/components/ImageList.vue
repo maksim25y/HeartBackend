@@ -32,7 +32,7 @@ export default {
     fetchImages() {
       axios.get(this.apiEndpoint, {
         headers: {
-          'Authorization': 'Bearer ',
+          'Authorization': `Bearer ${this.getToken()}`,
         }
       })
       .then(response => {
@@ -44,7 +44,15 @@ export default {
     },
     redirectToAnalyse() {
       this.$router.push('/');
-    }
+    },
+    getToken() {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; authToken=`);
+            if(parts.length === 2) {
+                return parts.pop().split(';').shift();
+            }
+            return null;
+        },
   }
 }
 </script>

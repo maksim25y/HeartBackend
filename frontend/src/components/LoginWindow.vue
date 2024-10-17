@@ -5,8 +5,8 @@ export default {
     data() {
         return {
             formData : {
-                email: 'null',
-                password: 'null',
+                email: null,
+                password: null,
             },
             show_password: null,
         }
@@ -16,15 +16,21 @@ export default {
             this.$router.push('/registration');
         },
 
+        goMenu() {
+            this.$router.push('/');
+        },
+
         submitData() {
             console.log(this.formData)
             axios.post('http://localhost:8080/api/v1/auth/authenticate', this.formData)
             .then(response => {
                 document.cookie = `authToken=${response.data.token}; path=/; SameSite=Strict;`;
+                this.goMenu();
             })
             .catch(error => {
                 alert("Ошибка ввода данных");
             });
+
         },
 
         getToken() {
@@ -103,6 +109,7 @@ export default {
 
 .title {
     font-size: 30px;
+    color: black;
 }
 
 .div-email-username-password {
@@ -143,7 +150,7 @@ export default {
     display: flex;
     flex-direction: row;
     gap: 3px;
-    
+    color: black;  
 }
 
 .labels-forget-register {

@@ -52,10 +52,10 @@ methods: {
     this.formData.title = 'Исследование';
     this.formData.description = 'На изображении нарушений не обнаружено';
     this.formData.creation_date = '2024-10-11T16:33:49.76Z';
-
+    console.log(this.getToken)
     axios.post(this.apiEndpoint, this.formData, {
       headers: {
-        'Authorization': 'Bearer ',
+        'Authorization': `Bearer ${this.getToken()}`,
       }
     })
       .then(response => {
@@ -65,6 +65,14 @@ methods: {
         console.error('Ошибка отправки изображения:', error);
       })
   },
+  getToken() {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; authToken=`);
+            if(parts.length === 2) {
+                return parts.pop().split(';').shift();
+            }
+            return null;
+        },
 },
 };
 </script>
