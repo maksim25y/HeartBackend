@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Positive
 import lombok.RequiredArgsConstructor
@@ -26,6 +27,8 @@ import java.util.*
 @SecurityRequirement(name = "JWT")
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/v1/images")
+@Tag(name = "Изображения", description = "API для взаимодействия с изображениями")
 class ImageController(val imageServiceImpl: ImageService) {
     @Operation(summary = "Добавить изображение")
     @ApiResponses(
@@ -35,7 +38,7 @@ class ImageController(val imageServiceImpl: ImageService) {
             content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = IdResponse::class)))
         ), ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")]
     )
-    @PostMapping(path = ["/image/add"])
+    @PostMapping
     fun addFile(@Valid @RequestBody imageRequest: ImageRequest): ResponseEntity<IdResponse> {
         return ResponseEntity.ok(imageServiceImpl.add(imageRequest))
     }
@@ -67,7 +70,7 @@ class ImageController(val imageServiceImpl: ImageService) {
         return ResponseEntity.ok(image)
     }
 
-    @get:GetMapping(path = ["/images"])
+    @get:GetMapping(path = ["/all"])
     @get:ApiResponses(
         value = [ApiResponse(
             responseCode = "200",
