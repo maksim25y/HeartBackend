@@ -21,7 +21,13 @@ export default {
   data() {
     return {
       imageSrc: null,
-      apiEndpoint: 'http://web:3000/',
+      apiEndpoint: 'http://localhost:8080/api/v1/images',
+      formData: {
+        image: null,
+        title: null,
+        creation_date: null,
+        description: null,
+      }
     };
   },
 methods: {
@@ -42,19 +48,20 @@ methods: {
     }
   },
   handleSubmit() {
-    const formData = new FormData();
-    formData.append('image', this.$refs.fileInput.files[0]);
+    this.formData.image = this.imageSrc;
+    this.formData.title = 'Исследование';
+    this.formData.description = 'На изображении нарушений не обнаружено';
+    this.formData.creation_date = '2024-10-11T16:33:49.76Z';
 
-    axios.post(this.apiEndpoint, formData)
+    axios.post(this.apiEndpoint, this.formData, {
+      headers: {
+        'Authorization': 'Bearer ',
+      }
+    })
       .then(response => {
-        if (response.status == 200 || response.status == 201) {
-          this.imageSrc = null;
-        } else {
-          alert('Ошибка отправки изображения.');
-        }
+        this.imageSrc = null;
       })
       .catch(error => {
-        alert('Ошибка отправки изображения.');
         console.error('Ошибка отправки изображения:', error);
       })
   },
