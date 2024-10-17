@@ -3,6 +3,7 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
+import ImageList from './components/ImageList.vue'
 import ImageUploader from './components/ImageUploader.vue'
 import LoginWindow from './components/LoginWindow.vue'
 import RegistrationWindow from './components/RegistrationWindow.vue'
@@ -19,7 +20,11 @@ const router = createRouter({
   {
     path: '/registration',
     component: RegistrationWindow,
-  },],
+  },
+  {
+    path: '/images',
+    component: ImageList,
+  }],
   history: createWebHistory()
 })
 
