@@ -12,7 +12,7 @@ import lombok.Builder
 data class AuthenticationRequest(
     @field:Schema(description = "Никнейм пользователя", example = "ivan_ivanov")
     @field:NotBlank(message = "{login.is_blank}")
-    val login: String,
+    val email: String,
     @field:Schema(description = "Пароль пользователя", example = "securePassword123")
     @field:Size(min = 8, max = 32, message = "{request.password.invalid_size}")
     @field:NotBlank(message = "{password.is_blank}")

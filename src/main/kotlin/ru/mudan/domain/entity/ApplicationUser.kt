@@ -23,10 +23,16 @@ class ApplicationUser : UserDetails {
     private var id: Long? = null
 
     @Column(nullable = false, unique = true)
-    private var login: String? = null
+    private var email: String? = null
 
     @Column(nullable = false)
-    private var displayName: String? = null
+    private var firstname: String? = null
+
+    @Column(nullable = false)
+    private var lastname: String? = null
+
+    @Column(nullable = false)
+    private var patronymic: String? = null
 
     @Column(nullable = false)
     private var hashedPassword: String? = null
@@ -35,13 +41,21 @@ class ApplicationUser : UserDetails {
     @Enumerated(EnumType.STRING)
     private var role: Role? = null
 
-    constructor(login: String?, displayName: String?, hashedPassword: String?, role: Role?) {
-        this.login = login
-        this.displayName = displayName
+    constructor(
+        email: String?,
+        firstname: String?,
+        lastname: String?,
+        patronymic: String?,
+        hashedPassword: String?,
+        role: Role?
+    ) {
+        this.email = email
+        this.firstname = firstname
+        this.lastname = lastname
+        this.patronymic = patronymic
         this.hashedPassword = hashedPassword
         this.role = role
     }
-
 
     override fun getAuthorities(): Collection<GrantedAuthority?> {
         return List.of(SimpleGrantedAuthority(role!!.name))
@@ -52,7 +66,7 @@ class ApplicationUser : UserDetails {
     }
 
     override fun getUsername(): String {
-        return login!!
+        return email!!
     }
 
     override fun isAccountNonExpired(): Boolean {

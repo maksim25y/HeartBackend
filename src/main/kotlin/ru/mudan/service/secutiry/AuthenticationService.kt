@@ -20,7 +20,12 @@ class AuthenticationService( val appUserRepository: ApplicationUserRepository,
          val jwtService: JwtService
 ) {
     fun register(request: RegisterRequest): AuthenticationResponse {
-        val user =  ApplicationUser(request.login,request.displayName,encodePassword(request.password),Role.USER);
+        val user =  ApplicationUser(request.email,
+            request.firstname,
+            request.lastname,
+            request.patronymic,
+            encodePassword(request.password),
+            Role.USER);
         appUserRepository.save(user)
         val jwtToken = jwtService.generateToken(user)
         return AuthenticationResponse(jwtToken)
@@ -29,12 +34,12 @@ class AuthenticationService( val appUserRepository: ApplicationUserRepository,
     fun authenticate(request: AuthenticationRequest): AuthenticationResponse {
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
-                request.login,
+                request.email,
                 request.password
             )
         )
 
-        val user = appUserRepository.findByLogin(request.login)
+        val user = appUserRepository.findByEmail(request.email)
             .orElseThrow()!!
         val jwtToken = jwtService.generateToken(user)
         return AuthenticationResponse(jwtToken)

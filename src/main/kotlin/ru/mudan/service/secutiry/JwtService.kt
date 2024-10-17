@@ -15,13 +15,13 @@ import javax.crypto.SecretKey
 @Service
 @RequiredArgsConstructor
 class JwtService (val jwtSecretKey: String,val tokenTTL: Duration){
-    fun extractLogin(token: String?): String {
+    fun extractEmail(token: String?): String {
         return extractClaim(token) { obj: Claims -> obj.subject }
     }
 
     fun isTokenValid(token: String?, userDetails: UserDetails): Boolean {
-        val login = extractLogin(token)
-        return (login == userDetails.username) && !isTokenExpired(token)
+        val email = extractEmail(token)
+        return (email == userDetails.username) && !isTokenExpired(token)
     }
 
     fun generateToken(userDetails: UserDetails): String {

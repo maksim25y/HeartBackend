@@ -21,7 +21,7 @@ class SecurityToolsConfig (val appUserRepository: ApplicationUserRepository) {
     @Bean
     fun userDetailsService(): UserDetailsService {
         return UserDetailsService { username: String? ->
-            appUserRepository.findByLogin(username)
+            appUserRepository.findByEmail(username)
                 .orElseThrow { UsernameNotFoundException("User not found") }
         }
     }

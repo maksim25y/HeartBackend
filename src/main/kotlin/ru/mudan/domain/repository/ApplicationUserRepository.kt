@@ -7,5 +7,5 @@ import java.util.*
 
 @Repository
 interface ApplicationUserRepository : JpaRepository<ApplicationUser?, Long?> {
-    fun findByLogin(login: String?): Optional<ApplicationUser?>
+    fun findByEmail(login: String?): Optional<ApplicationUser?>
 }
