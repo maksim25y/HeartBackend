@@ -4,15 +4,36 @@ import axios from 'axios';
 export default {
     data() {
         return {
-            email: null,
-            user_name: null,
-            password: null,
+            formData : {
+                email: 'null',
+                password: 'null',
+            },
             show_password: null,
-        };
+        }
     },
     methods: {
         goRigister() {
             this.$router.push('/registration');
+        },
+
+        submitData() {
+            console.log(this.formData)
+            axios.post('http://localhost:8080/api/v1/auth/authenticate', this.formData)
+            .then(response => {
+                document.cookie = `authToken=${response.data.token}; path=/; SameSite=Strict;`;
+            })
+            .catch(error => {
+                alert("Ошибка ввода данных");
+            });
+        },
+
+        getToken() {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; authToken=`);
+            if(parts.length === 2) {
+                return parts.pop().split(';').shift();
+            }
+            return null;
         },
     },
 };
@@ -20,17 +41,19 @@ export default {
 
 <template>
     <div class="web-page"> 
-        <form class="main-container">
+        <form class="main-container" @submit.prevent="submitData">
         <label class="title">Вход в аккаунт</label>
         
         <div class="div-email-username-password">
-            <label class="label-email-username-password">Электронная почта или имя пользователя</label>
-            <input class="input-email-username-password" type ="text" v-model="text" placeholder=" Электронная почта или имя пользователя" required/>
+            <label class="label-email-username-password">Электронная почта
+
+            </label>
+            <input class="input-email-username-password" type ="email" v-model="formData.email" placeholder=" Электронная почта " required/>
         </div>
 
         <div class="div-email-username-password">
             <label class="label-email-username-password">Пароль пользователя</label>
-            <input class="input-email-username-password" :type ="show_password ? 'text' : 'password'" v-model="password" placeholder=" Пароль" required>
+            <input class="input-email-username-password" :type ="show_password ? 'text' : 'password'" v-model="formData.password" placeholder=" Пароль" required>
             <label class="show-password">
                 Показать пароль
                 <input type="checkbox" v-model="show_password"> 
@@ -49,7 +72,7 @@ export default {
             </div>
         </div>
 
-        <button class="button-login" @click = "handleClick">Войти</button>
+        <button type="submit" class="button-login">Войти</button>
         </form>
     </div>
 </template>

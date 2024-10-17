@@ -4,18 +4,39 @@ import axios from 'axios';
 export default {
     data() {
         return {
-            first_name: null,
-            last_name: null,
-            patronymic: null,
-            user_name: null,
-            email: null,
-            password: null,
+            formData : {
+                email: null,
+                firstname: null,
+                lastname: null,
+                patronymic: null,
+                password: null,
+            },
             show_password: false,
         };
     },
     methods: {
         goLogin() {
             this.$router.push('/login');
+        },
+
+        submitData() {
+            console.log(this.formData)
+            axios.post("http://localhost:8080/api/v1/auth/register", this.formData)
+            .then(response => {
+                document.cookie = `authToken=${response.data.token}; path=/; SameSite=Strict;`
+            })
+            .catch(error => {
+                alert("Ошибка ввода данных");
+            });
+        },
+
+        getToken() {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; authToken=`);
+            if(parts.length === 2) {
+                return parts.pop().split(';').shift();
+            }
+            return null;
         },
     },
 };
@@ -24,37 +45,32 @@ export default {
 
 <template>
     <div class="web-page"> 
-        <form class="main-container">
+        <form class="main-container" @submit.prevent="submitData">
         <label class="title">Регистрация аккаунта</label>
 
         <div class="name-of-info-and-input">
             <label class="label-name-of-info-and-input">Имя</label>
-            <input class="input-name-of-info-and-input" type ="text" v-model="first_name" placeholder=" Имя" required/>
+            <input class="input-name-of-info-and-input" type ="text" v-model="formData.firstname" placeholder=" Имя" required/>
         </div>
 
         <div class="name-of-info-and-input">
             <label class="label-name-of-info-and-input">Фамилия</label>
-            <input class="input-name-of-info-and-input" type ="text" v-model="last_name" placeholder=" Фамилия" required/>
+            <input class="input-name-of-info-and-input" type ="text" v-model="formData.lastname" placeholder=" Фамилия" required/>
         </div>
 
         <div class="name-of-info-and-input">
             <label class="label-name-of-info-and-input">Отчество</label>
-            <input class="input-name-of-info-and-input" type ="text" v-model="patronymic" placeholder=" Отчество" required/>
-        </div>
-
-        <div class="name-of-info-and-input">
-            <label class="label-name-of-info-and-input">Имя пользователя (логин)</label>
-            <input class="input-name-of-info-and-input" type ="text" v-model="user_name" placeholder=" Имя пользователя" required/>
+            <input class="input-name-of-info-and-input" type ="text" v-model="formData.patronymic" placeholder=" Отчество" required/>
         </div>
         
         <div class="name-of-info-and-input">
             <label class="label-name-of-info-and-input">Электронная почта</label>
-            <input class="input-name-of-info-and-input" type ="email" v-model="email" placeholder=" Электронная почта" ref="" required/>
+            <input class="input-name-of-info-and-input" type ="email" v-model="formData.email" placeholder=" Электронная почта" ref="" required/>
         </div>
 
         <div class="name-of-info-and-input">
             <label class="label-name-of-info-and-input">Пароль пользователя</label>
-            <input class="input-name-of-info-and-input" :type ="show_password ? 'text' : 'password'" v-model="password" placeholder=" Пароль" required/>
+            <input class="input-name-of-info-and-input" :type ="show_password ? 'text' : 'password'" v-model="formData.password" placeholder=" Пароль" required/>
             <label class="show-password">
                 Показать пароль
                 <input type="checkbox" class="checkbox" v-model="show_password"> 
@@ -84,7 +100,7 @@ export default {
     align-items: center;
     justify-content: space-evenly;
     flex-direction: column;
-    height: 650px;
+    height: 575px;
     width: 420px;
     background-color: white;
     border-color: white;
