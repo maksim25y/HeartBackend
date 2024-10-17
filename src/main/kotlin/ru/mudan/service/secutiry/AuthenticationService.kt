@@ -11,6 +11,7 @@ import ru.mudan.controller.security.payload.RegisterRequest
 import ru.mudan.domain.entity.ApplicationUser
 import ru.mudan.domain.entity.enums.Role
 import ru.mudan.domain.repository.ApplicationUserRepository
+import ru.mudan.exception.UserExistsException
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,8 @@ class AuthenticationService( val appUserRepository: ApplicationUserRepository,
          val jwtService: JwtService
 ) {
     fun register(request: RegisterRequest): AuthenticationResponse {
+        checkEmail(request.email)
+
         val user =  ApplicationUser(request.email,
             request.firstname,
             request.lastname,
@@ -43,6 +46,13 @@ class AuthenticationService( val appUserRepository: ApplicationUserRepository,
             .orElseThrow()!!
         val jwtToken = jwtService.generateToken(user)
         return AuthenticationResponse(jwtToken)
+    }
+
+    private fun checkEmail(email: String) {
+        val applicationUser = appUserRepository.findByEmail(email)
+        if (applicationUser.isPresent) {
+            throw UserExistsException(email)
+        }
     }
 
     fun encodePassword(password: String?): String {
