@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import lombok.RequiredArgsConstructor
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.PostMapping
@@ -38,7 +39,7 @@ class AuthenticationController(val authenticationService: AuthenticationService)
         )]
     )
     @PostMapping("/register")
-    fun register(@RequestBody request: RegisterRequest): AuthenticationResponse {
+    fun register(@Valid @RequestBody request: RegisterRequest): AuthenticationResponse {
         return authenticationService.register(request)
     }
 
@@ -62,7 +63,7 @@ class AuthenticationController(val authenticationService: AuthenticationService)
         )]
     )
     @PostMapping("/authenticate")
-    fun authenticate(@RequestBody request: AuthenticationRequest): AuthenticationResponse {
+    fun authenticate(@Valid @RequestBody request: AuthenticationRequest): AuthenticationResponse {
         return authenticationService.authenticate(request)
     }
 }
