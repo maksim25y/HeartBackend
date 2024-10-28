@@ -64,16 +64,20 @@ class AuthenticationService(
         return AuthenticationResponse(jwtToken,refreshToken)
     }
 
-    fun refreshAccessToken(refreshToken: String): String {
+    fun refreshAccessToken(refreshToken: String): AuthenticationResponse {
         val username = jwtService.extractEmail(refreshToken)
 
         return username.let { user ->
             val currentUserDetails = userDetailsService.loadUserByUsername(user)
             val refreshTokenUserDetails = refreshTokenRepository.findUserDetailsByToken(refreshToken)
 
-            if (currentUserDetails.username == refreshTokenUserDetails?.username)
-                jwtService.generateToken(currentUserDetails)
-            else
+            if (currentUserDetails.username == refreshTokenUserDetails?.username){
+                refreshTokenRepository.delete(refreshToken)
+                val refreshNewToken = jwtService.generateRefreshToken(java.util.Map.of(),currentUserDetails)
+                refreshTokenRepository.save(refreshNewToken,currentUserDetails)
+                AuthenticationResponse(jwtService.generateToken(currentUserDetails),
+                    refreshNewToken)
+            }else
                 throw AuthenticationServiceException("Invalid refresh token")
         }
     }

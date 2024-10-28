@@ -67,6 +67,7 @@ class AuthenticationController(val authenticationService: AuthenticationService)
 
     @PostMapping("/refresh")
     fun refreshAccessToken(
-        @RequestBody request: RefreshTokenRequest
-    ): TokenResponse = TokenResponse(token = authenticationService.refreshAccessToken(request.token))
+        @RequestBody request: RefreshTokenRequest):AuthenticationResponse{
+        return authenticationService.refreshAccessToken(request.token)
+    }
 }
