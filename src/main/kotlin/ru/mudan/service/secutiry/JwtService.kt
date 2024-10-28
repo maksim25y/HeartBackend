@@ -22,8 +22,9 @@ import javax.crypto.SecretKey
 class JwtService(
     val jwtSecretKey: String,
     val tokenTTL: Duration,
-    val refreshTokenRepository: RefreshTokenRepository,
     @Qualifier("userDetailsService") private val userDetailsService: UserDetailsService,){
+    val refreshTTL = 86400000
+
     fun extractEmail(token: String?): String {
         return extractClaim(token) { obj: Claims -> obj.subject }
     }
@@ -63,7 +64,7 @@ class JwtService(
             .claims(extraClaims)
             .subject(userDetails.username)
             .issuedAt(Date(System.currentTimeMillis()))
-            .expiration(Date(System.currentTimeMillis() + 4930543905839583958))
+            .expiration(Date(System.currentTimeMillis() + refreshTTL))
             .signWith(signInKey, Jwts.SIG.HS256)
             .compact()
     }

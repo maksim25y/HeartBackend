@@ -1,20 +1,11 @@
 package ru.mudan.domain.repository
 
-import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
+import ru.mudan.domain.RefreshTokenModel
+import java.util.*
 
 @Repository
-class RefreshTokenRepository {
-    private val tokens = mutableMapOf<String, UserDetails>()
-
-    fun findUserDetailsByToken(token: String): UserDetails? =
-        tokens[token]
-
-    fun save(token: String, userDetails: UserDetails) {
-        tokens[token] = userDetails
-    }
-
-    fun delete(token: String) {
-        tokens.remove(token)
-    }
+interface RefreshTokenRepository: JpaRepository<RefreshTokenModel, Long> {
+    fun findByToken(token: String): Optional<RefreshTokenModel>
 }

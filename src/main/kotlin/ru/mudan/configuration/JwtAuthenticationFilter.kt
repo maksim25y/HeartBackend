@@ -1,16 +1,11 @@
 package ru.mudan.configuration
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.jsonwebtoken.ExpiredJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import lombok.RequiredArgsConstructor
-import org.springframework.context.MessageSource
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.ProblemDetail
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -19,16 +14,11 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import ru.mudan.service.secutiry.JwtService
 import java.io.IOException
-import java.net.URI
-import java.nio.charset.StandardCharsets
-import java.util.*
 
 @Component
 @RequiredArgsConstructor
 class JwtAuthenticationFilter(val jwtService: JwtService,
-                              val userDetailsService: UserDetailsService,
-                              val objectMapper: ObjectMapper,
-                              val messageSource: MessageSource) :
+                              val userDetailsService: UserDetailsService) :
     OncePerRequestFilter() {
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
@@ -59,7 +49,6 @@ class JwtAuthenticationFilter(val jwtService: JwtService,
                 }
             }
         }catch (e: ExpiredJwtException){
-            println("Токен просрочен")
             filterChain.doFilter(request, response)
         }
     }

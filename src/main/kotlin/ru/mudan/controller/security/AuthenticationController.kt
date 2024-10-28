@@ -65,6 +65,17 @@ class AuthenticationController(val authenticationService: AuthenticationService)
         return authenticationService.authenticate(request)
     }
 
+    @Operation(
+        summary = "Обновление jwt токена по refresh токену.",
+        description = "Обновляет просроченный jwt токен по refresh токену и возвращает новый jwt токен."
+    )
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Успешное обновление токена",
+            content = arrayOf(Content(schema = Schema(implementation = AuthenticationResponse::class)))
+        )]
+    )
     @PostMapping("/refresh")
     fun refreshAccessToken(
         @RequestBody request: RefreshTokenRequest):AuthenticationResponse{

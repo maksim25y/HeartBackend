@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service
 import ru.mudan.controller.security.payload.AuthenticationRequest
 import ru.mudan.controller.security.payload.AuthenticationResponse
 import ru.mudan.controller.security.payload.RegisterRequest
+import ru.mudan.domain.RefreshTokenModel
 import ru.mudan.domain.entity.ApplicationUser
 import ru.mudan.domain.entity.enums.Role
 import ru.mudan.domain.repository.ApplicationUserRepository
@@ -40,7 +41,9 @@ class AuthenticationService(
         val jwtToken = jwtService.generateToken(user)
         val refreshToken = jwtService.generateRefreshToken(java.util.Map.of(),user)
 
-        refreshTokenRepository.save(refreshToken, user)
+        val refreshModel = RefreshTokenModel(user.username, refreshToken);
+
+        refreshTokenRepository.save(refreshModel)
 
         return AuthenticationResponse(jwtToken,refreshToken)
     }
@@ -59,7 +62,9 @@ class AuthenticationService(
         val jwtToken = jwtService.generateToken(user)
         val refreshToken = jwtService.generateRefreshToken(java.util.Map.of(),user)
 
-        refreshTokenRepository.save(refreshToken, user)
+        val refreshModel = RefreshTokenModel(user.username, refreshToken)
+
+        refreshTokenRepository.save(refreshModel)
 
         return AuthenticationResponse(jwtToken,refreshToken)
     }
@@ -69,12 +74,16 @@ class AuthenticationService(
 
         return username.let { user ->
             val currentUserDetails = userDetailsService.loadUserByUsername(user)
-            val refreshTokenUserDetails = refreshTokenRepository.findUserDetailsByToken(refreshToken)
+            val tokenFromDB = refreshTokenRepository.findByToken(refreshToken).orElseThrow()
+            val userEmail = tokenFromDB.email
 
-            if (currentUserDetails.username == refreshTokenUserDetails?.username){
-                refreshTokenRepository.delete(refreshToken)
+            if (currentUserDetails.username == userEmail){
+                refreshTokenRepository.deleteById(tokenFromDB.id)
+
                 val refreshNewToken = jwtService.generateRefreshToken(java.util.Map.of(),currentUserDetails)
-                refreshTokenRepository.save(refreshNewToken,currentUserDetails)
+                val refreshModel = RefreshTokenModel(userEmail, refreshNewToken)
+
+                refreshTokenRepository.save(refreshModel)
                 AuthenticationResponse(jwtService.generateToken(currentUserDetails),
                     refreshNewToken)
             }else
