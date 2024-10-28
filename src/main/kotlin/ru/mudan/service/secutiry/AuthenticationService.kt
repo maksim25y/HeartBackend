@@ -1,8 +1,11 @@
 package ru.mudan.service.secutiry
 
 import lombok.RequiredArgsConstructor
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.mudan.controller.security.payload.AuthenticationRequest
@@ -11,14 +14,18 @@ import ru.mudan.controller.security.payload.RegisterRequest
 import ru.mudan.domain.entity.ApplicationUser
 import ru.mudan.domain.entity.enums.Role
 import ru.mudan.domain.repository.ApplicationUserRepository
+import ru.mudan.domain.repository.RefreshTokenRepository
 import ru.mudan.exception.UserExistsException
 
 @Service
 @RequiredArgsConstructor
-class AuthenticationService( val appUserRepository: ApplicationUserRepository,
-        val authenticationManager: AuthenticationManager,
-         val passwordEncoder: PasswordEncoder,
-         val jwtService: JwtService
+class AuthenticationService(
+    val appUserRepository: ApplicationUserRepository,
+    val authenticationManager: AuthenticationManager,
+    val passwordEncoder: PasswordEncoder,
+    val jwtService: JwtService,
+    val refreshTokenRepository: RefreshTokenRepository,
+    @Qualifier("userDetailsService") private val userDetailsService: UserDetailsService
 ) {
     fun register(request: RegisterRequest): AuthenticationResponse {
         checkEmail(request.email)
@@ -31,7 +38,11 @@ class AuthenticationService( val appUserRepository: ApplicationUserRepository,
             Role.USER);
         appUserRepository.save(user)
         val jwtToken = jwtService.generateToken(user)
-        return AuthenticationResponse(jwtToken)
+        val refreshToken = jwtService.generateRefreshToken(java.util.Map.of(),user)
+
+        refreshTokenRepository.save(refreshToken, user)
+
+        return AuthenticationResponse(jwtToken,refreshToken)
     }
 
     fun authenticate(request: AuthenticationRequest): AuthenticationResponse {
@@ -44,8 +55,27 @@ class AuthenticationService( val appUserRepository: ApplicationUserRepository,
 
         val user = appUserRepository.findByEmail(request.email)
             .orElseThrow()!!
+
         val jwtToken = jwtService.generateToken(user)
-        return AuthenticationResponse(jwtToken)
+        val refreshToken = jwtService.generateRefreshToken(java.util.Map.of(),user)
+
+        refreshTokenRepository.save(refreshToken, user)
+
+        return AuthenticationResponse(jwtToken,refreshToken)
+    }
+
+    fun refreshAccessToken(refreshToken: String): String {
+        val username = jwtService.extractEmail(refreshToken)
+
+        return username.let { user ->
+            val currentUserDetails = userDetailsService.loadUserByUsername(user)
+            val refreshTokenUserDetails = refreshTokenRepository.findUserDetailsByToken(refreshToken)
+
+            if (currentUserDetails.username == refreshTokenUserDetails?.username)
+                jwtService.generateToken(currentUserDetails)
+            else
+                throw AuthenticationServiceException("Invalid refresh token")
+        }
     }
 
     private fun checkEmail(email: String) {

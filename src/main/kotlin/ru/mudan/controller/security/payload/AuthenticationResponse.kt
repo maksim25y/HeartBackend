@@ -9,5 +9,6 @@ data class AuthenticationResponse(
         description = "JWT токен для аутентифицированного пользователя",
         example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     )
-    val token: String
+    val accessToken: String,
+    val refreshToken: String,
 )
