@@ -17,4 +17,11 @@ create table images
     creation_date timestamp with time zone not null,
     description   text                     not null,
     primary key (id)
-)
+);
+
+CREATE TABLE refresh_token
+(
+    id    bigint generated always as identity,
+    email VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL
+);

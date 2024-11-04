@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import ru.mudan.controller.security.payload.AuthenticationRequest
-import ru.mudan.controller.security.payload.AuthenticationResponse
-import ru.mudan.controller.security.payload.RegisterRequest
+import ru.mudan.controller.security.payload.*
 import ru.mudan.service.secutiry.AuthenticationService
 
 @RestController
@@ -65,5 +63,22 @@ class AuthenticationController(val authenticationService: AuthenticationService)
     @PostMapping("/authenticate")
     fun authenticate(@Valid @RequestBody request: AuthenticationRequest): AuthenticationResponse {
         return authenticationService.authenticate(request)
+    }
+
+    @Operation(
+        summary = "Обновление jwt токена по refresh токену.",
+        description = "Обновляет просроченный jwt токен по refresh токену и возвращает новый jwt токен."
+    )
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Успешное обновление токена",
+            content = arrayOf(Content(schema = Schema(implementation = AuthenticationResponse::class)))
+        )]
+    )
+    @PostMapping("/refresh")
+    fun refreshAccessToken(
+        @RequestBody request: RefreshTokenRequest):AuthenticationResponse{
+        return authenticationService.refreshAccessToken(request.token)
     }
 }

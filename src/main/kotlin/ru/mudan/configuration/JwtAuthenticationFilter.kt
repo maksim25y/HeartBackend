@@ -1,10 +1,10 @@
 package ru.mudan.configuration
 
+import io.jsonwebtoken.ExpiredJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import jakarta.validation.constraints.NotNull
 import lombok.RequiredArgsConstructor
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -17,32 +17,38 @@ import java.io.IOException
 
 @Component
 @RequiredArgsConstructor
-class JwtAuthenticationFilter(val jwtService: JwtService, val userDetailsService: UserDetailsService) : OncePerRequestFilter() {
+class JwtAuthenticationFilter(val jwtService: JwtService,
+                              val userDetailsService: UserDetailsService) :
+    OncePerRequestFilter() {
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val authHeader = request.getHeader("Authorization")
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response)
-            return
-        }
-        val jwt = authHeader.substring(7)
-        val userEmail = jwtService.extractEmail(jwt)
-
-        if (userEmail != null && SecurityContextHolder.getContext().authentication == null) {
-            val userDetails = userDetailsService.loadUserByUsername(userEmail)
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                val authToken = UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.authorities
-                )
-                authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
-                SecurityContextHolder.getContext().authentication = authToken
+        try {
+            val authHeader = request.getHeader("Authorization")
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response)
+                return
             }
+            val jwt = authHeader.substring(7)
+            val userEmail = jwtService.extractEmail(jwt)
+
+            if (userEmail != null && SecurityContextHolder.getContext().authentication == null) {
+                val userDetails = userDetailsService.loadUserByUsername(userEmail)
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    val authToken = UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.authorities
+                    )
+                    authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
+                    SecurityContextHolder.getContext().authentication = authToken
+                    filterChain.doFilter(request, response)
+                }
+            }
+        }catch (e: ExpiredJwtException){
             filterChain.doFilter(request, response)
         }
     }

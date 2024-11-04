@@ -54,4 +54,9 @@ class SecurityToolsConfig (val appUserRepository: ApplicationUserRepository) {
     fun tokenTTL(@Value("\${jwt.ttl}") tokenTTL: Long): Duration {
         return Duration.ofMinutes(tokenTTL)
     }
+
+    @Bean
+    fun refreshTokenTTL(@Value("\${jwt.refreshTtl}") refreshTokenTTL: Long): Duration {
+        return Duration.ofMinutes(refreshTokenTTL)
+    }
 }
