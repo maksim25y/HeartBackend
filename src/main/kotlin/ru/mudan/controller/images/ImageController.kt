@@ -1,6 +1,7 @@
 package ru.mudan.controller.images
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -18,10 +19,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.ErrorResponse
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpClientErrorException
-import ru.mudan.controller.images.payload.IdResponse
 import ru.mudan.controller.images.payload.ImageRequest
 import ru.mudan.controller.images.payload.ImageResponse
-import ru.mudan.controller.images.payload.ListImagesResponse
 import ru.mudan.service.images.ImageService
 import java.util.*
 
@@ -32,16 +31,17 @@ import java.util.*
 @RequestMapping("/api/v1/images")
 @Tag(name = "Изображения", description = "API для взаимодействия с изображениями")
 class ImageController(val imageServiceImpl: ImageService) {
+
     @Operation(summary = "Добавить изображение")
     @ApiResponses(
         value = [ApiResponse(
             responseCode = "200",
             description = "Изображение добавлено",
-            content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = IdResponse::class)))
+            content = arrayOf(Content(mediaType = "application/json", schema = Schema(implementation = ImageResponse::class)))
         ), ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")]
     )
     @PostMapping
-    fun addFile(@Valid @RequestBody imageRequest: ImageRequest): ResponseEntity<ImageResponse> {
+    fun addImage(@Valid @RequestBody imageRequest: ImageRequest): ResponseEntity<ImageResponse> {
         return ResponseEntity.ok(imageServiceImpl.add(imageRequest))
     }
 
@@ -61,7 +61,7 @@ class ImageController(val imageServiceImpl: ImageService) {
         )]
     )
     @GetMapping(path = ["/image/{id}"])
-    fun getFile(@PathVariable id: @Positive Long): ResponseEntity<ImageResponse> {
+    fun getImage(@PathVariable id: @Positive Long): ResponseEntity<ImageResponse> {
         val image = imageServiceImpl.get(id)
         if (Objects.isNull(image)) {
             throw HttpClientErrorException.NotFound.create(
@@ -79,7 +79,7 @@ class ImageController(val imageServiceImpl: ImageService) {
             content = arrayOf(
                 Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = ListImagesResponse::class)
+                    schema = Schema(implementation = ImageResponse::class)
                 )
             )
         ), ApiResponse(
@@ -89,8 +89,10 @@ class ImageController(val imageServiceImpl: ImageService) {
     )
     @Operation(summary = "Получить все изображения")
     @GetMapping(path = ["/all/{page}"])
-    fun getFiles(
+    fun getImages(
+        @Parameter(description = "Номер страницы", example = "0")
         @PathVariable page: Int,
+        @Parameter(description = "Размер страницы (по умолчанию 5)", example = "5")
         @RequestParam(name = "size", required = false, defaultValue = "5") pageSize: Int
     ): Iterable<ImageResponse> {
         val pageable: Pageable = PageRequest
