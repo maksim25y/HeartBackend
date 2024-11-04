@@ -10,10 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Positive
 import lombok.RequiredArgsConstructor
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.ErrorResponse
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpClientErrorException
@@ -23,6 +24,7 @@ import ru.mudan.controller.images.payload.ImageResponse
 import ru.mudan.controller.images.payload.ListImagesResponse
 import ru.mudan.service.images.ImageService
 import java.util.*
+
 
 @SecurityRequirement(name = "JWT")
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ class ImageController(val imageServiceImpl: ImageService) {
         ), ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")]
     )
     @PostMapping
-    fun addFile(@Valid @RequestBody imageRequest: ImageRequest): ResponseEntity<IdResponse> {
+    fun addFile(@Valid @RequestBody imageRequest: ImageRequest): ResponseEntity<ImageResponse> {
         return ResponseEntity.ok(imageServiceImpl.add(imageRequest))
     }
 
@@ -70,8 +72,7 @@ class ImageController(val imageServiceImpl: ImageService) {
         return ResponseEntity.ok(image)
     }
 
-    @get:GetMapping(path = ["/all"])
-    @get:ApiResponses(
+    @ApiResponses(
         value = [ApiResponse(
             responseCode = "200",
             description = "Изображения успешно получены",
@@ -86,7 +87,16 @@ class ImageController(val imageServiceImpl: ImageService) {
             description = "Некорректные параметры запроса"
         )]
     )
-    @get:Operation(summary = "Получить все изображения")
-    val images: ResponseEntity<ListImagesResponse>
-        get() = ResponseEntity.ok(imageServiceImpl.list)
+    @Operation(summary = "Получить все изображения")
+    @GetMapping(path = ["/all/{page}"])
+    fun getFiles(
+        @PathVariable page: Int,
+        @RequestParam(name = "size", required = false, defaultValue = "5") pageSize: Int
+    ): Iterable<ImageResponse> {
+        val pageable: Pageable = PageRequest
+            .of(
+                page, pageSize
+            )
+        return imageServiceImpl.list(pageable)
+    }
 }
