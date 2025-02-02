@@ -19,12 +19,11 @@
     ```
     git clone https://github.com/maksim25y/HeartBackend.git
     ```
-2. Далее перейдите в директорию с файлом *docker-compose.yml*:
+2. Далее перейдите в директорию с файлом *compose.yml*:
     ```
     cd HeartBackend
     cd docker
     ```
-     ```
 3. Теперь можно запустить приложение:
     * Для Linux систем:
       ```
