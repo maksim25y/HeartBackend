@@ -7,6 +7,8 @@ import java.time.OffsetDateTime
 
 @JvmRecord
 data class ImageResponse(
+    @Schema(name = "id", example = "1", description = "id изображения")
+    val id: Long,
     @Schema(name = "image", example = "data:image/jpeg;base64,/9j/4AAQSkZJRg", description = "Изображение в формате png, jpg в base64")
     val image: @NotNull String,
     @Schema(name = "title", example = "Исследование 1", description = "Название изображения")

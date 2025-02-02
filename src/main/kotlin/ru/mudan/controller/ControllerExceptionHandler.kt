@@ -1,5 +1,6 @@
 package ru.mudan.controller
 
+import jakarta.persistence.EntityNotFoundException
 import lombok.RequiredArgsConstructor
 import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
@@ -10,12 +11,14 @@ import org.springframework.validation.BindException
 import org.springframework.validation.ObjectError
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import ru.mudan.exception.ImageNotFoundException
 import ru.mudan.exception.UserExistsException
 import java.util.*
 
 @RestControllerAdvice
 @RequiredArgsConstructor
 class ControllerExceptionHandler (val messageSource: MessageSource) {
+
     @ExceptionHandler(NoSuchElementException::class)
     fun notFoundException(exception: NoSuchElementException, locale: Locale): ResponseEntity<ProblemDetail> {
         return createProblemDetailResponseEntity(
@@ -27,11 +30,20 @@ class ControllerExceptionHandler (val messageSource: MessageSource) {
 
     @ExceptionHandler(UserExistsException::class)
     fun userExistsException(exception: UserExistsException, locale: Locale): ResponseEntity<ProblemDetail> {
-        println(exception.message)
         return createProblemDetailResponse(
             HttpStatus.CONFLICT,
             exception.message!!,
             arrayOf(exception.email),
+            locale
+        )
+    }
+
+    @ExceptionHandler(ImageNotFoundException::class)
+    fun imageNotFoundException(exception: ImageNotFoundException, locale: Locale): ResponseEntity<ProblemDetail> {
+        return createProblemDetailResponse(
+            HttpStatus.CONFLICT,
+            exception.message!!,
+            arrayOf(exception.id),
             locale
         )
     }

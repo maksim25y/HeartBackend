@@ -1,13 +1,13 @@
 package ru.mudan.service.images
 
-import ru.mudan.controller.images.payload.IdResponse
+import org.springframework.data.domain.Pageable;
 import ru.mudan.controller.images.payload.ImageRequest
 import ru.mudan.controller.images.payload.ImageResponse
-import ru.mudan.controller.images.payload.ListImagesResponse
 
 interface ImageService {
-    fun add(imageRequest: ImageRequest): IdResponse
-    val list: ListImagesResponse
+    fun add(imageRequest: ImageRequest): ImageResponse
 
-    fun get(id: Long): ImageResponse?
+    fun list(pageable: Pageable): Iterable<ImageResponse>
+
+    fun get(id: Long): ImageResponse
 }
